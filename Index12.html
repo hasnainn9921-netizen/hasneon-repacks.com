@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HaSNeon Repacks - High Quality Game Repacks</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Configuration for the 'Inter' font and dark mode */
+        :root {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117; /* Deep dark background */
+        }
+
+        /* Custom CSS for the Neon Glow Effect */
+        .neon-text {
+            color: #22d3ee; /* Tailwind cyan-400 */
+            text-shadow:
+                0 0 7px #22d3ee,
+                0 0 10px #22d3ee,
+                0 0 21px #22d3ee,
+                0 0 42px #06b6d4,
+                0 0 82px #06b6d4,
+                0 0 92px #06b6d4;
+            animation: flicker 1.5s infinite alternate;
+        }
+
+        /* Pure white glow for emphasized words */
+        .glowing-word {
+            color: #ffffff; /* Pure white */
+            text-shadow:
+                0 0 4px #fff,
+                0 0 8px #fff,
+                0 0 15px #fff,
+                0 0 20px #22d3ee; /* Soft cyan halo */
+            font-weight: 700;
+        }
+        
+        /* Custom CSS for the Neon Glow Box (New requirement) */
+        .neon-box {
+            background-color: rgba(6, 182, 212, 0.05); /* Very light translucent cyan background */
+            border: 2px solid #22d3ee;
+            box-shadow: 
+                0 0 10px #22d3ee,
+                0 0 25px rgba(6, 182, 212, 0.7),
+                0 0 40px rgba(6, 182, 212, 0.5),
+                inset 0 0 5px #22d3ee;
+            transition: all 0.4s ease-in-out;
+        }
+
+        .neon-box:hover {
+            box-shadow: 
+                0 0 15px #22d3ee,
+                0 0 35px rgba(6, 182, 212, 0.8),
+                0 0 60px rgba(6, 182, 212, 0.6),
+                inset 0 0 10px #22d3ee;
+        }
+
+        /* Subtle flickering animation for the neon effect */
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% {
+                opacity: 1;
+                text-shadow:
+                    0 0 7px #22d3ee,
+                    0 0 10px #22d3ee,
+                    0 0 21px #22d3ee,
+                    0 0 42px #06b6d4,
+                    0 0 82px #06b6d4,
+                    0 0 92px #06b6d4;
+            }
+            20%, 24%, 55% {        
+                opacity: 0.8;
+                text-shadow: none;
+            }
+        }
+
+        /* Additional styles for card effects */
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    
+    <div id="landing-page" class="p-4 md:p-8">
+        
+        <!-- Header with Neon Title -->
+        <header class="text-center py-6 border-b border-cyan-800/50">
+            <h1 class="text-6xl md:text-8xl font-black uppercase tracking-widest neon-text">
+                HaSNeon
+            </h1>
+            <p class="text-xl md:text-2xl mt-2 font-light text-cyan-300">
+                High Quality Game Repacks
+            </p>
+        </header>
+
+        <!-- Search Bar -->
+        <div class="max-w-3xl mx-auto my-10">
+            <input type="text" id="game-search" placeholder="Search for games..." class="w-full p-4 rounded-lg bg-gray-800 border-2 border-cyan-500 text-lg focus:border-cyan-400 focus:ring focus:ring-cyan-500/50 transition duration-300 shadow-xl shadow-cyan-900/30">
+        </div>
+
+        <!-- NEW: More Info Neon Box -->
+        <section class="max-w-4xl mx-auto mt-8 mb-12 p-6 rounded-xl neon-box">
+            <h2 class="text-3xl font-extrabold text-center mb-4 text-cyan-400">
+                <span class="glowing-word">THE</span> SOURCE
+            </h2>
+            <p class="text-center text-xl text-gray-200 leading-relaxed">
+                <span class="neon-text font-bold">HaSNeon Repacks</span> is your ultimate source for highly compressed, meticulously tested, and <span class="glowing-word">secure</span> game archives. 
+                We ensure every repack is <span class="neon-text font-bold">optimized</span> for maximum download speed and minimal installation footprint, letting you get into the action **faster**.
+                Our dedicated team is <span class="neon-text font-bold">committed</span> to providing unparalleled quality and reliability. Trust our curated <span class="glowing-word">collection</span> for a seamless gaming experience.
+            </p>
+        </section>
+        
+        <!-- Game List Container -->
+        <div id="game-list-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-6xl mx-auto pb-10">
+            <!-- Game cards will be injected here by JavaScript -->
+        </div>
+
+    </div>
+
+    <!-- Game Details Page (Hidden by default) -->
+    <div id="game-details-page" class="hidden p-4 md:p-8">
+        <button id="back-button" class="text-cyan-400 hover:text-cyan-300 transition duration-200 mb-6 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Back to List
+        </button>
+        <div id="game-details-content" class="max-w-4xl mx-auto bg-gray-800 p-6 rounded-xl shadow-2xl border border-cyan-500/30">
+            <!-- Details will be loaded here -->
+        </div>
+    </div>
+
+
+    <script>
+        // Data structure for the games
+        const GAMES_DATA = [
+            // --- CORE GAMES (Existing) ---
+            {
+                id: 1,
+                title: "Cyberpunk 2077: Phantom Liberty",
+                subtitle: "Sci-Fi RPG Adventure",
+                size: "52 GB (Original: 105 GB)",
+                status: "Updated",
+                image: "https://placehold.co/400x225/111827/22d3ee?text=CYBERPUNK",
+                description: "Venture into the new district of Dogtown in the massive Phantom Liberty expansion. A spy-thriller set in the dangerous world of Cyberpunk 2077. Features a new skill tree, weapons, and a branching storyline.",
+                releaseDate: "2023-09-26",
+                links: [
+                    { name: "Direct Download (Redirect to Dodi Search)", url: "#" },
+                    { name: "Torrent File (Redirect to Dodi Search)", url: "#" }
+                ]
+            },
+            {
+                id: 2,
+                title: "Elden Ring: Shadow of the Erdtree",
+                subtitle: "Action RPG, Fantasy",
+                size: "35 GB (Original: 60 GB)",
+                status: "New",
+                image: "https://placehold.co/400x225/111827/22d3ee?text=ELDEN+RING",
+                description: "Follow the path of Miquella to the Land of Shadow, a place where the Goddess Marika first set foot. This is the biggest expansion for the critically acclaimed game, Elden Ring, offering new bosses, weapons, and vast areas to explore.",
+                releaseDate: "2024-06-21",
+                links: [
+                    { name: "Direct Download (Redirect to Dodi Search)", url: "#" },
+                    { name: "Mirror Link (Redirect to Dodi Search)", url: "#" }
+                ]
+            },
+            {
+                id: 3,
+                title: "Starfield",
+                subtitle: "Space Exploration RPG",
+                size: "70 GB (Original: 125 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/111827/22d3ee?text=STARFIELD",
+                description: "Create your own character and explore the vast cosmos in this next-generation RPG from Bethesda Game Studios. Over 1000 planets to explore, hundreds of quests, and deep character customization.",
+                releaseDate: "2023-09-06",
+                links: [
+                    { name: "Torrent File (Redirect to Dodi Search)", url: "#" }
+                ]
+            },
+            {
+                id: 4,
+                title: "Baldur's Gate 3",
+                subtitle: "CRPG, Fantasy",
+                size: "80 GB (Original: 150 GB)",
+                status: "Updated",
+                image: "https://placehold.co/400x225/111827/22d3ee?text=BALDURS+GATE+3",
+                description: "Gather your party and return to the Forgotten Realms in a tale of fellowship and betrayal, sacrifice and survival, and the lure of absolute power. Choose your path in this cinematic D&D adventure.",
+                releaseDate: "2023-08-03",
+                links: [
+                    { name: "Direct Download (Redirect to Dodi Search)", url: "#" },
+                    { name: "Torrent File (Redirect to Dodi Search)", url: "#" }
+                ]
+            },
+            
+            // --- NEW REPACKS (36 Additions) ---
+            {
+                id: 5,
+                title: "Grand Theft Auto V: Premium Edition",
+                subtitle: "The definitive action-adventure open world. All DLC included.",
+                size: "45 GB (Original: 90 GB)",
+                status: "Updated",
+                image: "https://placehold.co/400x225/cc0000/ffffff?text=GTA+V",
+                description: "Experience the highly acclaimed open-world game GTA V. This repack includes the full story mode, GTA Online access (files), and all previously released content and updates up to the current version.",
+                releaseDate: "2024-09-27",
+                links: [{ name: "Download GTA V (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 6,
+                title: "The Sims 4: Complete Collection",
+                subtitle: "Includes all Expansion Packs, Game Packs, and Kits.",
+                size: "30 GB (Original: 120 GB)",
+                status: "New",
+                image: "https://placehold.co/400x225/5cb85c/ffffff?text=THE+SIMS+4",
+                description: "The Sims 4 with every piece of content released to date. Highly compressed to save massive disk space.",
+                releaseDate: "2024-09-25",
+                links: [{ name: "Download Complete Sims 4 (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 7,
+                title: "Resident Evil 2 Remake",
+                subtitle: "Raccoon City's classic horror experience.",
+                size: "18 GB (Original: 26 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/000000/ff9900?text=RE2+REMAKE",
+                description: "Play as Leon Kennedy or Claire Redfield in this stunning, tense survival horror remake. Optimized for quick install.",
+                releaseDate: "2019-01-25",
+                links: [{ name: "Download Resident Evil 2 (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 8,
+                title: "Resident Evil 3 Remake",
+                subtitle: "Jill Valentine's escape from Raccoon City.",
+                size: "12 GB (Original: 43 GB)",
+                status: "Updated",
+                image: "https://placehold.co/400x225/000000/cc0000?text=RE3+REMAKE",
+                description: "Experience the final hours of Raccoon City with the Nemesis chasing you. Fast install and minimal size.",
+                releaseDate: "2020-04-03",
+                links: [{ name: "Download Resident Evil 3 (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 9,
+                title: "Final Fantasy XV Windows Edition",
+                subtitle: "Includes all character episodes and Royal Pack DLC.",
+                size: "65 GB (Original: 100 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/4a4a4a/7f00ff?text=FFXV",
+                description: "Noctis's epic journey with enhanced graphics and all major content expansions.",
+                releaseDate: "2018-03-06",
+                links: [{ name: "Download FFXV (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 10,
+                title: "Dragon Age: Inquisition GOTY",
+                subtitle: "Game of the Year Edition with all DLC.",
+                size: "30 GB (Original: 45 GB)",
+                status: "New",
+                image: "https://placehold.co/400x225/5cb85c/4a4a4a?text=DRAGON+AGE+INQUISITION",
+                description: "Lead the Inquisition and make choices that change the world of Thedas forever.",
+                releaseDate: "2015-10-06",
+                links: [{ name: "Download Dragon Age (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 11,
+                title: "Monster Hunter Rise: Sunbreak",
+                subtitle: "Full game plus the massive Sunbreak expansion.",
+                size: "35 GB (Original: 50 GB)",
+                status: "Updated",
+                image: "https://placehold.co/400x225/f0ad4e/111827?text=MONSTER+HUNTER+RISE",
+                description: "Hunt down formidable monsters in the new world of Elgado. Optimized for high speed download.",
+                releaseDate: "2022-06-30",
+                links: [{ name: "Download MH Rise (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 12,
+                title: "Sekiro: Shadows Die Twice",
+                subtitle: "FromSoftware's intense samurai action game.",
+                size: "12 GB (Original: 25 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/333333/999999?text=SEKIRO",
+                description: "Take revenge as the one-armed wolf in 16th century Japan. Game of the Year content included.",
+                releaseDate: "2019-03-22",
+                links: [{ name: "Download Sekiro (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 13,
+                title: "Nioh 2 – The Complete Edition",
+                subtitle: "Includes all three major DLC expansions.",
+                size: "40 GB (Original: 85 GB)",
+                status: "New",
+                image: "https://placehold.co/400x225/7f00ff/ffffff?text=NIOH+2",
+                description: "Master the way of the samurai and the supernatural in this brutal action RPG.",
+                releaseDate: "2021-02-05",
+                links: [{ name: "Download Nioh 2 (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 14,
+                title: "SOMA",
+                subtitle: "Psychological Sci-Fi Horror by Frictional Games.",
+                size: "9 GB (Original: 25 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/000000/00bcd4?text=SOMA",
+                description: "Explore the underwater facility of PATHOS-II. A chilling story about consciousness and identity.",
+                releaseDate: "2015-09-22",
+                links: [{ name: "Download SOMA (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 15,
+                title: "Alien: Isolation Collection",
+                subtitle: "Includes all DLCs like Crew Expendable and Last Survivor.",
+                size: "20 GB (Original: 35 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/000000/ccff00?text=ALIEN+ISOLATION",
+                description: "Survive the ultimate cat-and-mouse game against a single, unrelenting Xenomorph.",
+                releaseDate: "2014-10-07",
+                links: [{ name: "Download Alien Isolation (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 16,
+                title: "Hitman 2 Gold Edition",
+                subtitle: "Complete Agent 47 experience with both Expansion Packs.",
+                size: "35 GB (Original: 55 GB)",
+                status: "Updated",
+                image: "https://placehold.co/400x225/000000/5bc0de?text=HITMAN+2",
+                description: "Travel the globe and track your targets in exotic sandbox locations. Includes all bonus missions.",
+                releaseDate: "2018-11-13",
+                links: [{ name: "Download Hitman 2 (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 17,
+                title: "The Elder Scrolls V: Skyrim Anniversary Edition",
+                subtitle: "The definitive version including all Creation Club content.",
+                size: "15 GB (Original: 20 GB)",
+                status: "New",
+                image: "https://placehold.co/400x225/4a4a4a/f0ad4e?text=SKYRIM+AE",
+                description: "Return to Tamriel in the most comprehensive version of Skyrim. Compressed and stable.",
+                releaseDate: "2021-11-11",
+                links: [{ name: "Download Skyrim AE (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 18,
+                title: "Fallout 4 GOTY Edition",
+                subtitle: "Game of the Year Edition including all six DLCs.",
+                size: "25 GB (Original: 50 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/cc0000/ffff00?text=FALLOUT+4",
+                description: "Rebuild the Commonwealth in this massive post-apocalyptic RPG. Includes Nuka-World and Far Harbor.",
+                releaseDate: "2017-09-26",
+                links: [{ name: "Download Fallout 4 (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 19,
+                title: "Watch Dogs: Legion Ultimate Edition",
+                subtitle: "Recruit anyone in London. All DLCs included.",
+                size: "40 GB (Original: 75 GB)",
+                status: "Updated",
+                image: "https://placehold.co/400x225/5bc0de/000000?text=WATCH+DOGS+LEGION",
+                description: "Build a resistance to take back near-future London. Features the Bloodline story expansion.",
+                releaseDate: "2020-10-29",
+                links: [{ name: "Download Watch Dogs Legion (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 20,
+                title: "Far Cry 5 Gold Edition",
+                subtitle: "Includes the Season Pass with three unique adventures.",
+                size: "28 GB (Original: 50 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/f0ad4e/000000?text=FAR+CRY+5",
+                description: "Liberate Hope County, Montana, from a fanatical cult. Stable repack for high-speed installation.",
+                releaseDate: "2018-03-27",
+                links: [{ name: "Download Far Cry 5 (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 21,
+                title: "Borderlands 2 GOTY",
+                subtitle: "All major DLCs for the legendary looter-shooter.",
+                size: "15 GB (Original: 30 GB)",
+                status: "New",
+                image: "https://placehold.co/400x225/000000/00ff00?text=BORDERLANDS+2",
+                description: "Shoot and loot your way across Pandora with all the expansions included in this fast repack.",
+                releaseDate: "2012-09-18",
+                links: [{ name: "Download Borderlands 2 (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 22,
+                title: "Detroit: Become Human",
+                subtitle: "Quantic Dream's cinematic interactive drama.",
+                size: "35 GB (Original: 50 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/5bc0de/000000?text=DETROIT",
+                description: "Make choices that determine the fate of humanity and androids in futuristic Detroit.",
+                releaseDate: "2020-06-18",
+                links: [{ name: "Download Detroit (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 23,
+                title: "Heavy Rain",
+                subtitle: "Four days of mystery. Quantic Dream.",
+                size: "16 GB (Original: 30 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/4a4a4a/cc0000?text=HEAVY+RAIN",
+                description: "Hunt the Origami Killer in this gripping interactive thriller. Small repack size.",
+                releaseDate: "2020-06-18",
+                links: [{ name: "Download Heavy Rain (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 24,
+                title: "Mafia: Definitive Edition",
+                subtitle: "The classic crime drama rebuilt from the ground up.",
+                size: "25 GB (Original: 50 GB)",
+                status: "Updated",
+                image: "https://placehold.co/400x225/333333/ffffff?text=MAFIA+DE",
+                description: "Experience the life of Tommy Angelo in the 1930s. Stunning graphics and fast installation.",
+                releaseDate: "2020-09-25",
+                links: [{ name: "Download Mafia DE (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 25,
+                title: "Ghost Recon Breakpoint Ultimate Edition",
+                subtitle: "Tactical shooter, includes Year 1 Pass.",
+                size: "45 GB (Original: 60 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/5cb85c/000000?text=BREAKPOINT",
+                description: "Fight against rogue Ghosts on the mysterious island of Auroa. Stable base files.",
+                releaseDate: "2019-10-04",
+                links: [{ name: "Download Breakpoint (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 26,
+                title: "Assassin's Creed Odyssey Gold Edition",
+                subtitle: "Epic journey through Ancient Greece, all DLC.",
+                size: "60 GB (Original: 90 GB)",
+                status: "Updated",
+                image: "https://placehold.co/400x225/7f00ff/f0ad4e?text=AC+ODYSSEY",
+                description: "Become a legendary Spartan hero. Includes Legacy of the First Blade and Fate of Atlantis.",
+                releaseDate: "2018-10-02",
+                links: [{ name: "Download AC Odyssey (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 27,
+                title: "Destiny 2: The Witch Queen (Base Files)",
+                subtitle: "Base game content for multiplayer access.",
+                size: "48 GB (Original: 105 GB)",
+                status: "New",
+                image: "https://placehold.co/400x225/5bc0de/ffffff?text=DESTINY+2+BASE",
+                description: "Base installation files required to access the free-to-play content and core game experience.",
+                releaseDate: "2022-02-22",
+                links: [{ name: "Download Destiny 2 Base (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 28,
+                title: "Fable III",
+                subtitle: "The classic fantasy RPG. Complete Edition.",
+                size: "9 GB (Original: 12 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/f0ad4e/000000?text=FABLE+III",
+                description: "Lead a revolution and take the throne of Albion. Small, fast repack.",
+                releaseDate: "2011-05-17",
+                links: [{ name: "Download Fable III (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 29,
+                title: "Quantum Break",
+                subtitle: "Remedy's cinematic time-manipulation shooter.",
+                size: "35 GB (Original: 48 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/7f00ff/5bc0de?text=QUANTUM+BREAK",
+                description: "A fast-paced action game combined with a high-production live-action TV show.",
+                releaseDate: "2016-09-29",
+                links: [{ name: "Download Quantum Break (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 30,
+                title: "Max Payne 3 Complete Edition",
+                subtitle: "Includes the base game and all multiplayer packs.",
+                size: "25 GB (Original: 35 GB)",
+                status: "Updated",
+                image: "https://placehold.co/400x225/cc0000/000000?text=MAX+PAYNE+3",
+                description: "Max Payne's final, explosive chapter. Highly stable repack with all bonuses.",
+                releaseDate: "2012-06-01",
+                links: [{ name: "Download Max Payne 3 (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 31,
+                title: "L.A. Noire Complete Edition",
+                subtitle: "Solve crime in 1947 Los Angeles. All DLC included.",
+                size: "18 GB (Original: 25 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/4a4a4a/ffffff?text=LA+NOIRE",
+                description: "A dark and violent detective thriller set in the golden age of Hollywood.",
+                releaseDate: "2011-11-08",
+                links: [{ name: "Download L.A. Noire (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 32,
+                title: "Middle-earth: Shadow of War Definitive Edition",
+                subtitle: "Includes all expansions, quests, and tribes.",
+                size: "45 GB (Original: 90 GB)",
+                status: "New",
+                image: "https://placehold.co/400x225/000000/5cb85c?text=SHADOW+OF+WAR",
+                description: "Conquer Mordor and forge a new Ring of Power. Definitive Edition content is complete.",
+                releaseDate: "2018-08-28",
+                links: [{ name: "Download Shadow of War (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 33,
+                title: "Just Cause 4 Gold Edition",
+                subtitle: "Rico Rodriguez's chaos with the Expansion Pass.",
+                size: "30 GB (Original: 59 GB)",
+                status: "Updated",
+                image: "https://placehold.co/400x225/f0ad4e/000000?text=JUST+CAUSE+4",
+                description: "Bring the thunder in the huge open world of Solís. Fast and chaotic action.",
+                releaseDate: "2018-12-04",
+                links: [{ name: "Download Just Cause 4 (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 34,
+                title: "COD: Black Ops III Zombies Chronicles",
+                subtitle: "Massive shooter with all Zombies maps.",
+                size: "55 GB (Original: 100 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/333333/00ff00?text=BO3+ZOMBIES",
+                description: "A huge collection of the best Call of Duty Zombies content, highly compressed.",
+                releaseDate: "2015-11-06",
+                links: [{ name: "Download BO3 Zombies (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 35,
+                title: "Batman: Arkham Knight Premium Edition",
+                subtitle: "The conclusion of the Arkham saga. All DLC included.",
+                size: "35 GB (Original: 50 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/000000/ccff00?text=ARKHAM+KNIGHT",
+                description: "Batman faces the ultimate threat to Gotham. Includes Season of Infamy content.",
+                releaseDate: "2015-06-23",
+                links: [{ name: "Download Arkham Knight (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 36,
+                title: "LEGO Star Wars: The Skywalker Saga",
+                subtitle: "Experience all 9 Star Wars films in one game.",
+                size: "20 GB (Original: 40 GB)",
+                status: "New",
+                image: "https://placehold.co/400x225/5bc0de/000000?text=LEGO+STAR+WARS",
+                description: "Fun, expansive open-world LEGO action. Includes all character packs.",
+                releaseDate: "2022-04-05",
+                links: [{ name: "Download LEGO SW (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 37,
+                title: "Forza Horizon 4 Ultimate Edition",
+                subtitle: "Open-world racing in historic Britain. All expansions.",
+                size: "45 GB (Original: 90 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/7f00ff/ffffff?text=FORZA+H4",
+                description: "Drive over 450 cars and experience dynamic seasons. Includes Fortune Island and Lego Valley.",
+                releaseDate: "2018-10-02",
+                links: [{ name: "Download Forza H4 (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 38,
+                title: "Need for Speed Heat Deluxe Edition",
+                subtitle: "High-stakes street racing and police chases.",
+                size: "25 GB (Original: 35 GB)",
+                status: "Tested",
+                image: "https://placehold.co/400x225/cc0000/000000?text=NFS+HEAT",
+                description: "Race by day, risk it all by night. The Deluxe Edition bonus content is included.",
+                releaseDate: "2019-11-08",
+                links: [{ name: "Download NFS Heat (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 39,
+                title: "The Ascent Cyber Edition",
+                subtitle: "Co-op Action-RPG in a cyberpunk world.",
+                size: "15 GB (Original: 30 GB)",
+                status: "New",
+                image: "https://placehold.co/400x225/000000/00ffcc?text=THE+ASCENT",
+                description: "Explore the dark, sprawling Arcology and fight its inhabitants. Includes the Cyber Warrior Pack.",
+                releaseDate: "2021-07-29",
+                links: [{ name: "Download The Ascent (Redirect to Dodi Search)", url: "#" }]
+            },
+            {
+                id: 40,
+                title: "Dead Cells: The Fatal Falls Bundle",
+                subtitle: "The ultimate rogue-lite metroidvania experience.",
+                size: "4 GB (Original: 6 GB)",
+                status: "New",
+                image: "https://placehold.co/400x225/7f00ff/00ffcc?text=DEAD+CELLS",
+                description: "Includes the base game and all major paid DLCs up to Fatal Falls. Smallest repack size possible.",
+                releaseDate: "2021-01-26",
+                links: [{ name: "Download Dead Cells (Redirect to Dodi Search)", url: "#" }]
+            },
+        ];
+
+        // --- DOM Elements ---
+        const landingPage = document.getElementById('landing-page');
+        const gameDetailsPage = document.getElementById('game-details-page');
+        const gameListContainer = document.getElementById('game-list-container');
+        const gameDetailsContent = document.getElementById('game-details-content');
+        const backButton = document.getElementById('back-button');
+
+        // --- Constants for Dodi Redirection ---
+        const DODI_BASE_URL = "https://dodi-repacks.site/?s=";
+        
+        /**
+         * Generates a Dodi Repacks search URL based on the game title.
+         * @param {string} title - The title of the game.
+         * @returns {string} The fully constructed search URL.
+         */
+        function getDodiSearchUrl(title) {
+            // Clean up the title: remove non-alphanumeric chars (except space) and replace spaces with +
+            const sanitizedTitle = title.replace(/[^\w\s]/g, '').trim().replace(/\s+/g, '+');
+            return `${DODI_BASE_URL}${sanitizedTitle}`;
+        }
+
+        // --- Event Listeners ---
+        backButton.addEventListener('click', showLandingPage);
+        window.addEventListener('load', () => renderGameList()); // Initial load
+
+        // --- Functions ---
+
+        /**
+         * Switches the view to the game listing page.
+         */
+        function showLandingPage() {
+            landingPage.classList.remove('hidden');
+            gameDetailsPage.classList.add('hidden');
+            // Re-render the game list to ensure correct filtering state is maintained
+            filterGames();
+        }
+
+        /**
+         * Switches the view to the specific game details page.
+         * @param {number} gameId - The ID of the game to show.
+         */
+        function showGameDetails(gameId) {
+            const game = GAMES_DATA.find(g => g.id === gameId);
+            
+            if (!game) {
+                console.error("Game not found:", gameId);
+                return;
+            }
+
+            // Generate the Dodi Search URL for this specific game
+            const dodiSearchUrl = getDodiSearchUrl(game.title);
+
+            // Generate Details HTML
+            const detailsHTML = `
+                <div class="md:flex md:space-x-8">
+                    <img src="${game.image}" alt="${game.title} cover" class="w-full md:w-1/3 h-auto rounded-lg mb-6 md:mb-0 object-cover border border-cyan-400/50 shadow-lg shadow-cyan-900/50">
+                    <div class="md:w-2/3">
+                        <h2 class="text-5xl font-extrabold text-cyan-300 mb-2">${game.title}</h2>
+                        <p class="text-xl font-light text-gray-400 mb-4">${game.subtitle}</p>
+                        
+                        <div class="space-y-3 mb-6 p-4 bg-gray-700/50 rounded-lg">
+                            <p class="text-sm text-gray-200">
+                                <span class="font-semibold text-cyan-400 mr-2">Status:</span> 
+                                <span class="px-3 py-1 text-xs font-medium rounded-full ${getStatusClass(game.status)}">${game.status}</span>
+                            </p>
+                            <p class="text-sm text-gray-200"><span class="font-semibold text-cyan-400 mr-2">Repack Size:</span> ${game.size}</p>
+                            <p class="text-sm text-gray-200"><span class="font-semibold text-cyan-400 mr-2">Release Date:</span> ${game.releaseDate}</p>
+                        </div>
+
+                        <p class="text-lg mb-6 leading-relaxed">${game.description}</p>
+
+                        <h3 class="text-2xl font-semibold text-cyan-400 mb-4 border-b border-cyan-600/50 pb-2">Download Links (Redirects to Dodi Repacks Search)</h3>
+                        <div class="flex flex-col space-y-3">
+                            <!-- ALL LINKS ARE NOW REDIRECTED TO THE DODI REPACKS SEARCH PAGE -->
+                            ${game.links.map(link => `
+                                <a 
+                                    href="${dodiSearchUrl}" 
+                                    target="_blank" 
+                                    class="bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-cyan-500 transition duration-300 transform hover:scale-[1.02] text-center shadow-lg shadow-cyan-700/50"
+                                >
+                                    ${link.name}
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            gameDetailsContent.innerHTML = detailsHTML;
+            
+            landingPage.classList.add('hidden');
+            gameDetailsPage.classList.remove('hidden');
+            window.scrollTo(0, 0); // Scroll to top of the details page
+        }
+
+        /**
+         * Helper function to determine the status color class.
+         * @param {string} status - The status string (New, Updated, Tested).
+         * @returns {string} Tailwind CSS class string.
+         */
+        function getStatusClass(status) {
+            switch (status) {
+                case 'New':
+                    return 'bg-green-600 text-white';
+                case 'Updated':
+                    return 'bg-amber-600 text-white';
+                case 'Tested':
+                    return 'bg-blue-600 text-white';
+                default:
+                    return 'bg-gray-500 text-white';
+            }
+        }
+        
+        /**
+         * Renders the list of game cards based on an optional search term.
+         * @param {string} [searchTerm=''] - The term to filter the game titles by.
+         */
+        const renderGameList = (searchTerm = '') => {
+            gameListContainer.innerHTML = '';
+            const lowerSearchTerm = searchTerm.toLowerCase().trim();
+
+            GAMES_DATA.forEach(game => {
+                if (game.title.toLowerCase().includes(lowerSearchTerm)) {
+                    const statusClass = getStatusClass(game.status);
+                    const statusText = game.status;
+                    const titleColorClass = 'text-cyan-400';
+
+                    const cardHTML = `
+                        <article 
+                            onclick="showGameDetails(${game.id})" 
+                            class="game-card bg-gray-800 p-6 rounded-xl shadow-2xl cursor-pointer transform transition duration-300 border border-gray-700 hover:border-cyan-500 hover:shadow-cyan-900/50"
+                        >
+                            <img src="${game.image}" alt="${game.title} cover" class="w-full h-32 object-cover rounded-md mb-4 border border-cyan-700/50">
+                            <p class="text-lg font-bold ${titleColorClass} mb-1 truncate">${game.title}</p>
+                            <p class="text-xs text-gray-400 mb-3">${game.subtitle}</p>
+                            <div class="flex justify-between items-center text-sm pt-2 border-t border-gray-700">
+                                <span class="text-gray-300 font-semibold">
+                                    <span class="text-cyan-400 mr-1">💾</span> ${game.size.split('(')[0].trim()}
+                                </span>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full ${statusClass}">
+                                    ${statusText}
+                                </span>
+                            </div>
+                        </article>
+                    `;
+                    gameListContainer.innerHTML += cardHTML;
+                }
+            });
+        };
+        
+        /**
+         * Filters the game list based on the search term.
+         */
+        const filterGames = () => {
+            // Only filter if on the landing page
+            if (!landingPage.classList.contains('hidden')) {
+                const searchTerm = document.getElementById('game-search').value;
+                renderGameList(searchTerm);
+            }
+        };
+
+        // Attach listener to the input field for real-time filtering
+        document.getElementById('game-search').addEventListener('input', filterGames);
+
+        // Expose function globally for the onclick attribute in the rendered HTML
+        window.showGameDetails = showGameDetails;
+    </script>
+</body>
+</html>
